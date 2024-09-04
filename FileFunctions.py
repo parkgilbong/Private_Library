@@ -3,8 +3,8 @@ def Set_WD(base_folder, *args):
     주어진 base folder와 추가 폴더 이름들을 사용하여 경로를 생성하고, 해당 경로를 working directory로 설정합니다. 
 
     Parameters:
-    - base_folder   : 기본 폴더의 절대 경로 
-    - *args:        : 추가할 폴더 이름들 (가변인자)
+    - base_folder: str. the base path for setting the working directory 
+    - *args:     : str. the name of folder that the user wants to make under the base folder
 
     Example:
         base_folder = 'C:/Users/YGKim_IBS/Documents' 
@@ -36,8 +36,8 @@ def Grab_files_in_folder(folder_path, ext=""):
     Return the paths of files with extension *ext* present in *foler*.
 
     Parameters:
-    - folder: 탐색할 폴더의 절대 경로
-    - ext: str. 검색할 파일의 확장자. 
+    - folder: str. the path of the directory where you want to start the search
+    - ext   : str. the file extension you are looking for (e.g., '.txt' for text files, '.py' for Python files) 
     
     Example:
     base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
@@ -61,8 +61,8 @@ def Grab_files_in_all_subfolder(folder_path, ext=""):
     Return the paths of files with extension *ext* present in *all sub-foler*.
 
     Parameters:
-    - folder: 탐색할 root 폴더의 절대 경로
-    - ext: str. 검색할 파일의 확장자. 
+    - folder: str. the path of the directory where you want to start the search
+    - ext   : str. the file extension you are looking for (e.g., '.txt' for text files, '.py' for Python files) 
     
     Example:
     base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
