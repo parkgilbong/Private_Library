@@ -19,8 +19,9 @@ def Set_WD(base_folder: str, *args: str) -> str:
         Directory C:/Users/YGKim_IBS/Documents\test1\test2 created.
         The working directory is set to C:/Users/YGKim_IBS/Documents\test1\test2.
     """
+    import os
 
-    full_path = os.path.join(base_folder, *args)
+    full_path = Path(base_folder).joinpath(*args)
 
     try:
         full_path.mkdir(parents=True, exist_ok=True)
@@ -54,7 +55,8 @@ def Grab_files_in_folder(folder_path: str, ext: str="") -> list:
         =========================================================================
         This will return a list of all Jupyter Notebook files (.ipynb) in the specified folder.
     """
-
+    from pathlib import Path
+    
     folder = Path(folder_path)
     if not folder.is_dir():
         raise ValueError(f"The provided path {folder_path} is not a valid directory.")
@@ -75,6 +77,9 @@ def Grab_files_in_all_subfolder(folder_path: str, ext: str="") -> list:
     base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
     Grab_files_in_folder(base, ext='.ipynb')
     """
+    from pathlib import Path
+    import os
+
     folder = Path(folder_path)
     if not folder.is_dir():
         raise ValueError(f"The provided path {folder_path} is not a valid directory.")
