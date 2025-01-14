@@ -1,6 +1,6 @@
-def df_to_dic_single(df):
+def df_to_dic_single(df, ignore_bodyparts:str = 'PatchCordBase'):
     """
-    Convert dlc output data to the python dictionary form. The input data format should be a pandas DataFrame format. 
+    Convert single dlc output data to a python dictionary. The input data format should be a pandas DataFrame format. 
     """
 
     # Create a dictionary to map body part names to coordinate columns 
@@ -8,7 +8,7 @@ def df_to_dic_single(df):
     # Get unique body parts from the first level of the MultiIndex (excluding 'bodyparts')
     unique_body_parts = df.columns.get_level_values(0).unique().tolist() 
     unique_body_parts.remove('bodyparts')
-    unique_body_parts.remove('PatchCordBase')
+    unique_body_parts.remove(ignore_bodyparts)
         
     for part in unique_body_parts:
       # Use the MultiIndex to access the data
@@ -24,9 +24,9 @@ def df_to_dic_single(df):
     return body_part_data
 
 
-def df_to_dic_multi(df):     
+def df_to_dic_multi(df, ignore_bodyparts:str = 'PatchCordBase'):     
      """
-     
+     Convert multi dlc output data to two python dictionaries. The input data format should be a pandas DataFrame format.
      """
 
      # Create a dictionary to map body part names to coordinate columns
@@ -36,7 +36,7 @@ def df_to_dic_multi(df):
      # Get unique body parts from the first level of the MultiIndex (excluding 'bodyparts')
      unique_body_parts = df.columns.get_level_values(0).unique().tolist()
      unique_body_parts.remove('bodyparts')
-     unique_body_parts.remove('PatchCordBase')
+     unique_body_parts.remove(ignore_bodyparts)
         
      for part in unique_body_parts:
         # Use the MultiIndex to access the data

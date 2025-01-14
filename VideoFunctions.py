@@ -234,6 +234,8 @@ def add_inset_chart(video_slice_path: str, chart_path: str, filename: str, posit
     - The function prints messages indicating the status of the inset chart addition and any errors encountered.
     """
 
+    import cv2
+        
     # Open the main video file
     main_cap = cv2.VideoCapture(video_slice_path)
     if not main_cap.isOpened():
@@ -455,3 +457,47 @@ def VideoChopper(input_file: str, tags: list = [], chunk_duration: int = 60, sta
     video.release()
     print("Video chopping completed!")
 
+######################################################################################################################################################################
+######################################################################################################################################################################
+
+def create_video_from_images(image_folder:str, output_filename:str, frame_rate:int = 25, duration:int = 600, codec:str = 'mp4v', quality=95):
+    """
+    Creates a video from a sequence of images in a specified folder.
+    Args:
+        image_folder (str): Path to the folder containing the images.
+        output_filename (str): Name of the output video file.
+        frame_rate (int, optional): Frame rate of the video. Defaults to 25.
+        duration (int, optional): Duration of the video in seconds. Defaults to 600.
+        codec (str, optional): Codec to be used for the video. Defaults to 'mp4v'.
+        quality (int, optional): Quality of the video. Defaults to 95.
+    Returns:
+        None
+    Example:
+        create_video_from_images('/path/to/images', 'output_video.mp4', frame_rate=30, duration=120, codec='XVID', quality=90)
+    """
+    
+    import cv2
+    import os
+    
+    image_files = sorted([os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.endswith(".jpg") or img.endswith(".png") or img.endswith(".tiff")])
+    
+    if not image_files:
+        print("이미지 파일을 찾을 수 없습니다.")
+        return
+    
+    # 첫 번째 이미지에서 비디오의 크기 설정
+    first_image = cv2.imread(image_files[0])
+    height, width, layers = first_image.shape
+
+    # 비디오 라이터 객체 생성
+    fourcc = cv2.VideoWriter_fourcc(*codec)
+    video_writer = cv2.VideoWriter(output_filename, fourcc, frame_rate, (width, height))
+
+    max_index = frame_rate*duration
+
+    for i in range(0, max_index):
+        image = cv2.imread(image_files[i])
+        video_writer.write(image)
+
+    video_writer.release()
+    print(f'비디오 파일이 생성되었습니다: {output_filename}')
