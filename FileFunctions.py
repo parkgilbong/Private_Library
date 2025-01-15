@@ -1,6 +1,3 @@
-from pathlib import Path
-import os
-
 def Set_WD(base_folder: str, *args: str) -> str:
     """
     Creates a path using the given base folder and additional folder names, and sets it as the working directory. 
@@ -20,6 +17,7 @@ def Set_WD(base_folder: str, *args: str) -> str:
         The working directory is set to C:/Users/YGKim_IBS/Documents\test1\test2.
     """
     import os
+    from pathlib import Path
 
     full_path = Path(base_folder).joinpath(*args)
 
@@ -88,3 +86,79 @@ def Grab_files_in_all_subfolder(folder_path: str, ext: str="") -> list:
             for root, dirs, files in os.walk(folder_path)
             for name in files 
             if name.endswith(ext)]
+
+################################################################################################################
+
+def Grab_folder_paths_in_folder(folder_path: str) -> list:
+    """
+    Returns the paths of subfolders present in the given folder.
+
+    Parameters:
+    - folder_path (str): The path of the directory where you want to start the search. This should be an existing directory.
+
+    Returns:
+    - list: A list of folder paths within the given directory.
+
+    Example:
+        base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
+        Grab_folders_in_folder(base)
+        =========================================================================
+        This will return a list of all the paths of subfolders in the specified folder.
+    """
+    from pathlib import Path
+    
+    folder = Path(folder_path)
+    if not folder.is_dir():
+        raise ValueError(f"The provided path {folder_path} is not a valid directory.")
+
+    return [str(folder) for folder in folder.glob('*') if folder.is_dir()]
+
+################################################################################################################
+
+def Grab_folder_paths_in_all_subfolder(folder_path: str) -> list:
+    """
+    Return the paths of subfolders present in the given folder including *all sub-foler*.
+
+    Parameters:
+    - folder (str): The path of the directory where you want to start the search
+    
+    Example:
+    base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
+    Grab_folders_in_folder(base)
+    """
+    from pathlib import Path
+    import os
+
+    folder = Path(folder_path)
+    if not folder.is_dir():
+        raise ValueError(f"The provided path {folder_path} is not a valid directory.")
+    
+    return[os.path.join(root, name) 
+            for root, dirs, files in os.walk(folder_path)
+            for name in dirs]
+
+################################################################################################################
+
+def Grab_folder_names_in_folder(folder_path: str) -> list:
+    """
+    Returns the names of subfolders present in the given folder.
+
+    Parameters:
+    - folder_path (str): The path of the directory where you want to start the search. This should be an existing directory.
+
+    Returns:
+    - list: A list of folder names within the given directory.
+
+    Example:
+        base = "C:/Users/YGKim_IBS/Documents/Github/Jupyter_notebook/FiberPhotometry"
+        Grab_folders_in_folder(base)
+        =========================================================================
+        This will return a list of all the names of subfolders in the specified folder.
+    """
+    from pathlib import Path
+    
+    folder = Path(folder_path)
+    if not folder.is_dir():
+        raise ValueError(f"The provided path {folder_path} is not a valid directory.")
+
+    return [folder.name for folder in folder.glob('*') if folder.is_dir()]

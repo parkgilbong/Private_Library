@@ -1,19 +1,12 @@
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from datetime import datetime
-from PIL import Image
-import os
-
-def FP_preprocessing(output_path, image_paths, comments, fileID):
+def FP_preprocessing(output_path:str, title:str, image_paths:list, comments:list):
     """
     Generates a PDF report with the given images, comments, title, date, and time.
     
     Args:
-        output_path (str): Path to save the PDF report.
+        output_path (str): Path to save the PDF report. .
         image_paths (list of str): List of paths to the images to include in the report.
         comments (list of str): List of comments to add to the report.
-        fileID (str): Identifier for the file, used in the title of the report.
+        title (str): Title used for the file name and the title of the report.
     
     Example:
         image_paths = ['plot1.png', 'plot2.png', 'plot3.png']
@@ -22,16 +15,22 @@ def FP_preprocessing(output_path, image_paths, comments, fileID):
             "The second plot shows a slightly different trend.",
             "Here we see the third plot with another set of data."
         ]
-        fileID = "Experiment_123"
-        output_path = 'report_with_images_comments_and_title.pdf'
-        FP_preprocessing(output_path, image_paths, comments, fileID)
+        title = "241210 Report"
+        output_path = 'C:\\Users\\user\\Document'
+        FP_preprocessing(output_path, title, image_paths, comments)
     """
-    
-    c = canvas.Canvas(output_path, pagesize=letter)
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    from reportlab.lib import colors
+    from datetime import datetime
+    from PIL import Image
+    import os
+
+    c = canvas.Canvas(os.path.join(output_path, title +'.pdf'), pagesize=letter)
     width, height = letter
     
     # Add title
-    title = "[FP Data Preprocessing]"+"  "+fileID
+    title = title 
     c.setFont("Helvetica-Bold", 16)
     c.drawString(50, height - 50, title)
     
