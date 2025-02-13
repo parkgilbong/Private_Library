@@ -501,3 +501,54 @@ def create_video_from_images(image_folder:str, output_filename:str, frame_rate:i
 
     video_writer.release()
     print(f'비디오 파일이 생성되었습니다: {output_filename}')
+
+######################################################################################################################################################################
+######################################################################################################################################################################
+def resize_video(input_path, output_path, scale_factor=0.5):
+    """
+    Resizes a video by a given scale factor and saves the resized video to the specified output path.
+    Parameters:
+    input_path (str): The path to the input video file.
+    output_path (str): The path where the resized video will be saved.
+    scale_factor (float, optional): The factor by which to scale the video dimensions. Default is 0.5.
+    Returns:
+    None
+    Example:
+    resize_video('input.mp4', 'output.mp4', scale_factor=0.75)
+    """
+    import cv2
+    import os
+
+    # Open the input video
+    cap = cv2.VideoCapture(input_path)
+    if not cap.isOpened():
+        print(f"Error: Could not open video {input_path}")
+        return
+
+    # Get the original width and height of the video
+    original_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    original_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # Calculate the new width and height while maintaining the aspect ratio
+    new_width = int(original_width * scale_factor)
+    new_height = int(original_height * scale_factor)
+
+    # Define the codec and create VideoWriter object
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(output_path, fourcc, cap.get(cv2.CAP_PROP_FPS), (new_width, new_height))
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Resize the frame
+        resized_frame = cv2.resize(frame, (new_width, new_height))
+
+        # Write the resized frame to the output video
+        out.write(resized_frame)
+
+    # Release everything if job is finished
+    cap.release()
+    out.release()
+    print(f"Resized video saved as {output_path}") 

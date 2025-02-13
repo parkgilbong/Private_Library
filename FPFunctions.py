@@ -18,13 +18,15 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     import numpy as  np
     import pylab as plt
     import PlotFunctions # import User-defined function 
-    # import FileFunctions # import User-defined function
+    import FileFunctions # import User-defined function
     from scipy.signal import butter, filtfilt
     from scipy.stats import linregress
     from scipy.optimize import curve_fit
 
     # import the tdt library
     import tdt
+
+    FileFunctions.Set_WD(Dest_folder) # Set the working directory to the destination folder
 
     ####################################################################################################################
     # 1. Load the data from the tank file
@@ -81,8 +83,9 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     ylim_bottom = int(min([signal_raw.min(), control_raw.min()]))-5
     ylim_top = int(max([signal_raw.max(), control_raw.max()]))+5
 
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = control_raw,
+                            x2 = time_sec,
                             y2 = signal_raw,
                             Fig_size = (10,6),
                             Fig_title = f'Raw_signal_{Namefor465}',
@@ -107,8 +110,9 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     # control_denoised = control_raw # if one may try to extract a raw trace (not smoothed), then use this variable. 
 
     # plot signals
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = signal_denoised,
+                            x2 = time_sec,
                             y2 = control_denoised,
                             Fig_size = (10,6),
                             Fig_title = 'Denoised_signals',
@@ -248,13 +252,15 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     import numpy as  np
     import pylab as plt
     import PlotFunctions # import User-defined function 
-    # import FileFunctions # import User-defined function
+    import FileFunctions # import User-defined function
     from scipy.signal import butter, filtfilt
     from scipy.stats import linregress
     from scipy.optimize import curve_fit
 
     # import the tdt library
     import tdt
+
+    FileFunctions.Set_WD(Dest_folder) # Set the working directory to the destination folder
 
     ####################################################################################################################
     # 1. Load the data from the tank file
@@ -310,15 +316,15 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
                             colour= 'green',
                             save= True)  
     PlotFunctions.plot_sigle_line(x= time_sec,
-                             y= signal2_raw,
-                             Fig_size= (8,4),
-                             Fig_title= f'{Namefor560}',
-                             x_label= 'Time (sec)',
-                             y_label= f'{Namefor560} (mV)',
-                             x_lim= (None, None),
-                             y_lim= (None, None),
-                             colour= 'red',
-                             save= True)
+                            y= signal2_raw,
+                            Fig_size= (8,4),
+                            Fig_title= f'{Namefor560}',
+                            x_label= 'Time (sec)',
+                            y_label= f'{Namefor560} (mV)',
+                            x_lim= (None, None),
+                            y_lim= (None, None),
+                            colour= 'red',
+                            save= True)
     
     ylim_bottom = int(min([signal_raw.min(), control_raw.min()]))-5
     ylim_top = int(max([signal_raw.max(), control_raw.max()]))+5
@@ -326,8 +332,9 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     y2lim_bottom = int(min([signal2_raw.min(), control_raw.min()]))-5
     y2lim_top = int(max([signal2_raw.max(), control_raw.max()]))+5
 
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = control_raw,
+                            x2 = time_sec,
                             y2 = signal_raw,
                             Fig_size = (10,6),
                             Fig_title = f'Raw_signal_{Namefor465}',
@@ -340,8 +347,9 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
                             colour1 = 'blue',
                             colour2 = 'green',
                             save = True)
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = control_raw,
+                            x2 = time_sec,
                             y2 = signal2_raw,
                             Fig_size = (10,6),
                             Fig_title = f'Raw_signal_{Namefor560}',
@@ -367,8 +375,9 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     # control_denoised = control_raw # if one may try to extract a raw trace (not smoothed), then use this variable. 
 
     # plot signals
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = signal_denoised,
+                            x2 = time_sec,
                             y2 = control_denoised,
                             Fig_size = (10,6),
                             Fig_title = f'Denoised_signals_{Namefor465}',
@@ -381,8 +390,9 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
                             colour1 = 'green',
                             colour2 = 'blue',
                             save = True)
-    PlotFunctions.plot_dual_line(x = time_sec,
+    PlotFunctions.plot_dual_line(x1 = time_sec,
                             y1 = signal2_denoised,
+                            x2 = time_sec,
                             y2 = control_denoised,
                             Fig_size = (10,6),
                             Fig_title = f'Denoised_signals_{Namefor560}',
@@ -426,7 +436,7 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     max_sig = np.max(signal2_denoised) 
     inital_params = [max_sig/2, max_sig/4, max_sig/4, 3600, 0.1]
     bounds = ([0      , 0      , 0      , 600  , 0],
-              [max_sig, max_sig, max_sig, 36000, 1]) 
+            [max_sig, max_sig, max_sig, 36000, 1]) 
     signal2_parms, parm_cov = curve_fit(double_exponential, time_sec, signal2_denoised,
                                     p0=inital_params, bounds=bounds, maxfev=1000)
     
@@ -516,29 +526,29 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     signal2_dF_F = 100*signal2_corrected/signal2_expfit
 
     PlotFunctions.plot_sigle_line(x= time_sec,
-                             y= signal2_dF_F,
-                             Fig_size= (10,6),
-                             Fig_title= f'{Namefor560}_dFF',
-                             x_label= 'Time (sec)',
-                             y_label= f'{Namefor560} dF/F (%)',
-                             x_lim= (None, None),
-                             y_lim= (None, None),
-                             colour= 'red',
-                             save= True)
+                            y= signal2_dF_F,
+                            Fig_size= (10,6),
+                            Fig_title= f'{Namefor560}_dFF',
+                            x_label= 'Time (sec)',
+                            y_label= f'{Namefor560} dF/F (%)',
+                            x_lim= (None, None),
+                            y_lim= (None, None),
+                            colour= 'red',
+                            save= True)
     
     # compute z-score and plot for 560B signal
     signal2_zscored = (signal2_corrected-np.mean(signal2_corrected))/np.std(signal2_corrected)
 
     PlotFunctions.plot_sigle_line(x= time_sec,
-                             y= signal2_zscored,
-                             Fig_size= (10,6),
-                             Fig_title= f'{Namefor560}_z-score',
-                             x_label= 'Time (sec)',
-                             y_label= f'{Namefor560} z-score',
-                             x_lim= (None, None),
-                             y_lim= (None, None),
-                             colour= 'red',
-                             save= True)
+                            y= signal2_zscored,
+                            Fig_size= (10,6),
+                            Fig_title= f'{Namefor560}_z-score',
+                            x_label= 'Time (sec)',
+                            y_label= f'{Namefor560} z-score',
+                            x_lim= (None, None),
+                            y_lim= (None, None),
+                            colour= 'red',
+                            save= True)
     
     ####################################################################################################################
     # 7. Save the data
@@ -550,6 +560,978 @@ def FP_preprocessing_2ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     GCaMP_signal.to_pickle('Final_table_raw_trace.pkl')
     GCaMP_signal.to_csv('Final_table_raw_trace.csv')
     
-    # print('The file:Final_table_raw_trace.pkl saved successfully')
+    # print('The file:Final_table_raw_trace.pkl saved successfully'
+
+    return
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+def Peak_Analysis(pkl_path:str = "Final_table_raw_trace.pkl", 
+                prominence_thres:float = 2, 
+                amplitude_thres:float = 4, 
+                FPS:int = 25, 
+                pre_window_len:int=2, 
+                post_window_len:int=5,
+                output_folder:str = "Peak_Analysis", 
+                SavePlots:bool = False, 
+                SaveData:bool = False, 
+                SaveVideos:bool = False, 
+                video_path:str = "video.avi"):
+    '''
+    This function performs peak analysis on the processed fluorescence data, identifying peaks based on prominence and amplitude thresholds, and extracting relevant information about these peaks.
+    
+    Parameters:
+    pkl_path (str): Path to the pickle file containing the processed fluorescence data.
+    FPS (int): Frames per second of the recording.
+    prominence_thres (float): Threshold for the prominence of peaks.
+    amplitude_thres (float): Threshold for the amplitude of peaks.
+    pre_window_len (int): Length of the pre-peak window in seconds.
+    post_winoow_len (int): Length of the post-peak window in seconds.
+    SavePlots (bool): Whether to save the plots of the detected peaks.
+    SaveData (bool): Whether to save the data of the detected peaks.
+    SaveVideos (bool): Whether to save the videos of the detected peaks.
+    
+    Returns:
+    None
+    '''
+    
+    # Import necessary libraries
+    import os
+    import pandas as pd
+    import numpy as  np
+    import pylab as plt
+    import VideoFunctions 
+    from scipy.signal import find_peaks
+
+    # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    os.chdir(output_folder)
+
+    ####################################################################################################################
+    # 1. Load the data
+    ####################################################################################################################
+    GCaMP_signal = pd.read_pickle(pkl_path) # Load the processed FP data
+    time_sec = np.array(GCaMP_signal.time)  # Extract time data
+    signal_dF_F = np.array(GCaMP_signal.value)  # Extract fluorescence signal data
+
+    ####################################################################################################################
+    # 2. Find the peaks
+    ####################################################################################################################
+    prominence_threshold = prominence_thres
+    amplitude_threshold = amplitude_thres 
+
+    # Find peaks in the dFF signal using the scipy.signal.find_peaks() function
+    peaks, _ =find_peaks(x=signal_dF_F, prominence = prominence_threshold) #The prominence can be either 2 or 4.  
+    PeakNum = len(peaks)
+    
+    if PeakNum == 0:
+        print('No possible peaks detected in the signal')
+        return
+    
+    else: 
+        print(f'{PeakNum} possible peaks detected in the signal')
+        # Function to find onset of the peak
+        def find_peak_onset(signal, peak_index, threshold=0.0005):
+            onset_index = peak_index
+            while onset_index > 0 and signal[onset_index] > signal[onset_index - 1] - threshold:
+                onset_index -= 1
+            return onset_index
+
+        # Find onset times for all peaks
+        onset_indices = [find_peak_onset(signal_dF_F, peak) for peak in peaks]
+        Amplitude = np.array(signal_dF_F[peaks]) - np.array(signal_dF_F[onset_indices])
+
+        Final_peaks_indices = np.where(Amplitude > amplitude_threshold)
+        if len(Final_peaks_indices[0]) == 0:
+            print('No peaks detected with amplitude threshold')
+            return
+        
+        else: 
+            print(f'{len(Final_peaks_indices[0])} peaks detected with amplitude threshold')
+
+            Final_peaks = peaks[Final_peaks_indices]
+            Final_onset = [onset_indices[i] for i in Final_peaks_indices[0]]
+            
+            ####################################################################################################################
+            # 3. Plot the peaks
+            ####################################################################################################################
+            # Plot the dF/F signal with the detected peaks and onsets
+            fig1 = plt.figure(figsize=(16,9))
+            ax1=fig1.add_subplot(311)
+            plot1=ax1.plot(time_sec, signal_dF_F, 'g', label=r'$\Delta$F/F (%)')
+            Peaks = ax1.plot(time_sec[Final_peaks], signal_dF_F[Final_peaks], label = 'peaks', color = 'r', marker='o', ls ='')
+            Onsets = ax1.plot(time_sec[Final_onset], signal_dF_F[Final_onset], label='onsets', color = 'm', marker ='o', ls = "")
+
+            # ax1.set_ylim(-10, 15)
+            ax1.set_xlabel('Time (seconds)', fontsize =20)
+            ax1.set_ylabel(r'$\Delta$F/F (%)', color='k', fontsize = 20)
+
+            # ax1.set_title('Peak detection')
+            ax1.set_xlim(0, 600) # Set x-axis limit in seconds 
+
+            lines = plot1 + Peaks + Onsets
+            labels = [l.get_label() for l in lines]  #get legend labels
+            legend = ax1.legend(lines, labels, loc='lower right', bbox_to_anchor=(1, 1), fontsize = 15) #add legend
+
+            fig1.tight_layout()
+
+            if SavePlots == True:
+                plt.savefig('Plot_Peak_detection.png')
+
+            plt.show()
+
+            # Extract and save Ca2+ traces from 1 second before to 2 seconds after the detected peaks
+            start_time_array = np.array(time_sec[Final_onset])
+            pre_window_length = pre_window_len
+            post_window_length = post_window_len
+
+            all_lines = []
+            start_time_list = []
+            end_time_list = []
+
+            for time in start_time_array:
+                start_time = time - pre_window_length
+                end_time = time + post_window_length 
+                filtered_data = np.array(GCaMP_signal.value[(time_sec >= start_time) & (time_sec <= end_time)].copy())
+
+                # Adjust time to align data points
+                filtered_data = filtered_data.copy() # Avoid SettingWithCopyWarning
+            
+                # Plot line (green with transparency)
+                min_length = len(filtered_data)
+                x_data = (np.linspace(0, pre_window_length + post_window_length, min_length))-pre_window_length
+                y_data = filtered_data
+            
+                line, = plt.plot(x_data, y_data, color='green', alpha=0.1)
+            
+                all_lines.append(filtered_data)
+                start_time_list.append(start_time)
+                end_time_list.append(end_time)
+
+            all_lines = pd.DataFrame(all_lines)
+            all_lines_t = all_lines.transpose()
+
+            data = all_lines.to_numpy()
+
+            df_TimeWindow = pd.DataFrame({'start': start_time_list, 
+                                        'end': end_time_list})
+
+            mean_values = np.nanmean(data, axis=0)
+            std_values = np.nanstd(data, axis=0)
+
+            min_length = min(len(mean_values), len(std_values))
+            x_data = (np.linspace(0, pre_window_length + post_window_length, min_length))-pre_window_length
+
+            # Add graph title and labels
+            plt.title('')
+            plt.xlabel('Time (sec)')
+            plt.ylabel(r'$\Delta$F/F (%)')
+
+            # plt.legend()
+            plt.grid(True)
+            plt.ylim(-5, 10)
+            plt.xlim(-pre_window_length, post_window_length)
+            plt.axvline(x=0, color = "red", linestyle = '--', linewidth = 1)
+
+            plt.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+
+            if SavePlots == True:
+                plt.savefig('Plot_Peak_extraction.png')
+
+            plt.show()
+
+            if SaveData == True:
+                all_lines_t.to_pickle(f'Data_Extraced_signal_of_detected_peaks.pkl')
+                df_TimeWindow.to_pickle(f'Data_TimeWindow_for_detected_peaks.pkl')
+
+            ####################################################################################################################
+            # 4. Save the data
+            ####################################################################################################################
+            # Save detected peaks information as DataFrame 
+            df_peaks = pd.DataFrame(data={'Peak_Index': Final_peaks,
+                                        'Peak_X': np.array(time_sec[Final_peaks]), 
+                                        'Peak_Y': np.array(signal_dF_F[Final_peaks]),
+                                        'FrameForPeak': np.int64((time_sec[Final_peaks])*FPS),
+                                        'Onset_Index': np.array(Final_onset),
+                                        'Onset_X': np.array(time_sec[Final_onset]),
+                                        'Onset_Y': np.array(signal_dF_F[Final_onset]),
+                                        'FrameForOnset': np.int64((time_sec[Final_onset])*FPS),
+                                        'OnsetLatency': np.subtract(np.array(time_sec[Final_peaks]), np.array(time_sec[Final_onset])),
+                                        'Height': np.subtract(np.array(signal_dF_F[Final_peaks]), np.array(signal_dF_F[Final_onset]))})
+
+            print('Number of peaks detected:', len(df_peaks.Peak_Index))
+            print('Mean amplitude of peaks:', df_peaks.Height.mean())
+            print('Mean latency of peaks:', df_peaks.OnsetLatency.mean())
+
+            if SaveData == True:
+                df_peaks.to_csv('Data_Peak_detection.csv', header=True)
+
+            ####################################################################################################################
+            # 5. Save the videos
+            ####################################################################################################################
+            if SaveVideos == True:
+                slices_df = pd.DataFrame({'start_frame': df_peaks.FrameForOnset - pre_window_length*FPS,
+                                        'end_frame': df_peaks.FrameForPeak + post_window_length*FPS})
+            
+                VideoFunctions.extract_video_slices(video_path= video_path,
+                                            slices_df= slices_df,
+                                            output_folder= 'spike_detection')
+            return
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+def Epoch_Analysis_3EVT(pkl_path:str = "Final_table_raw_trace.pkl",
+                evt_path:str = "Data_DLC.csv",
+                PRE_TIME:int = 5,
+                POST_TIME:int = 10,
+                FPS:int = 25,
+                Rec_duration:int = 600,
+                SavePlots:bool = False,
+                SaveData:bool = False,
+                output_folder:str = "Epoch_Analysis"):
+    '''
+    This function performs epoch analysis on the processed fluorescence data, aligning the data to behavioral events and extracting relevant information about these epochs.
+
+    Parameters:
+    pkl_path (str): Path to the pickle file containing the processed fluorescence data.
+    evt_path (str): Path to the CSV file containing the behavioral events data.
+    Pre_window_len (int): Length of the pre-event window in seconds.
+    Post_window_len (int): Length of the post-event window in seconds.
+    FPS (int): Frames per second of the recording.
+    Rec_duration (int): Duration of the recording in seconds.
+    SavePlots (bool): Whether to save the plots of the detected epochs.
+    SaveData (bool): Whether to save the data of the detected epochs.
+
+    Returns:
+    None
+
+    '''
+
+    ####################################################################################################################
+    # 1. Import necessary libraries
+    ####################################################################################################################
+    import os
+    import pandas as pd
+    import numpy as  np
+    import pylab as plt
+    from matplotlib.patches import Patch
+    
+    # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    # os.chdir(output_folder)
+
+    ####################################################################################################################
+    # 2. Load the data
+    ####################################################################################################################
+    GCaMP_signal = pd.read_pickle(pkl_path)
+    time_sec = GCaMP_signal.time
+    signal_dF_F = GCaMP_signal.value
+
+    df_EVT = pd.read_csv(evt_path, header=0, index_col=0)
+
+    ####################################################################################################################
+    # 3. Generate plots of the fluorescence signal aligned to behavioral events
+    ####################################################################################################################
+    # Generate time series of behavioral data
+    CamTickTime = np.linspace(0, Rec_duration, Rec_duration*FPS)
+
+    # First make a continous time series of social events
+    # Event1 index == 1이면 Nose-to-Snout interaction ON, Event1 index == 2이면 Nose-to-Snout interaction OFF.
+    if 'EVT1' in df_EVT.columns: 
+        S_interaction_ON = np.array(CamTickTime[df_EVT.EVT1 == 1])
+        S_interaction_OFF = np.array(CamTickTime[df_EVT.EVT1 == 2])
+
+    # If Event2_index == 1, else -> S_zone entry, if EVT2 == 2, S_zone -> else exit.
+    S_zone_in = np.array(CamTickTime[df_EVT.EVT2 == 1]) 
+    # S_zone_in = np.insert(S_zone_in,0,CamTick[0]) # Adjust the index of Frame0 arbitrarily if starting from S_zone.
+    S_zone_out = np.array(CamTickTime[df_EVT.EVT2 == 2]) 
+
+    # Similarly for E-zone. If EVT3 == 1, else -> E-zone, if EVT3 == 2, E-zone -> else
+    E_zone_in = np.array(CamTickTime[df_EVT.EVT3 == 1])
+    E_zone_out = np.array(CamTickTime[df_EVT.EVT3 == 2])
+
+    Evt_x = np.append(np.append(time_sec[0], np.reshape(np.kron([S_interaction_ON, S_interaction_OFF],
+                    np.array([[1], [1]])).T, [1,-1])[0]), np.array(time_sec)[-1])
+    sz = len(S_interaction_ON)
+
+    CamTick = []
+
+    for i in range(len(S_interaction_ON)):
+        CamTick.append(1)
+
+    # Create a vertical stack of arrays: two arrays of zeros('np.zeros(sz)') and two arrays of ones (d')
+    # Then, transpose the stacked array and reshaping it. 
+    # Append '0' at the start and end of the reshaped array
+    Evt_y = np.append(np.append(0, np.reshape(np.vstack([np.zeros(sz), CamTick, CamTick, np.zeros(sz)]).T, [1, -1])[0]), 0)
+
+    y_scale = 3
+    y_offset = -10
+
+    # First subplot in a series: dFF with social epocs
+    fig1 = plt.figure(figsize=(10,6))
+    ax1 = fig1.add_subplot(211)
+
+    p1, = ax1.plot(time_sec, signal_dF_F, label='GCaMP', linewidth=1, color='green')
+    p2, = ax1.plot(Evt_x, y_scale*Evt_y+y_offset, linewidth=1, color='dodgerblue', label='Nose-to-Snout')
+    ax1.set_ylim(-10, 10)
+    ax1.set_xlim(0, 600)
+    ax1.set_ylabel(r'$\Delta$F/F (%)')
+    ax1.set_xlabel('Time (sec)')
+    ax1.set_title('dFF when Nose-to-Snout interaction')
+    ax1.legend(handles=[p1,p2], loc='lower right', bbox_to_anchor=(1.1, 1))
+    fig1.tight_layout()
+
+    # plt.show()
+
+    # Create the plot
+    # fig3 = plt.figure(figsize=(10,6))
+    ax2 = fig1.add_subplot(212)
+
+    # Create the line plot
+    p1, = ax2.plot(time_sec, signal_dF_F,linewidth=1, color='green', label='GCaMP')
+
+    # Add the vertical spnas using 'axvspan'.
+    for on, off in zip(S_zone_in, S_zone_out):
+        ax2.axvspan(on, off, alpha=0.25, color='dodgerblue')
+    for on, off in zip(E_zone_in, E_zone_out):
+        ax2.axvspan(on, off, alpha=0.25, color='orange')
+    ax2.set_ylim(-10, 15)
+    ax2.set_xlim(0, 600)
+    ax2.set_ylabel(r'$\Delta$F/F (%)')
+    ax2.set_xlabel('Time (sec)')
+    ax2.set_title('dFF with ROI segmentation')
+
+    # Create a custom legend for the vertical spans. 
+    handles, labels = ax2.get_legend_handles_labels()
+    handles.append(Patch(color='dodgerblue', alpha=0.25, label='S-zone'))
+    handles.append(Patch(color='orange', alpha=0.25, label='E-zone'))
+
+    ax2.legend(handles=handles, loc='lower right',bbox_to_anchor=(1.1, 1))
+
+    fig1.tight_layout()
+
+    if SavePlots == True: 
+        fig1.savefig(os.path.join(output_folder, 'Plot_dFF_with_ROI_segmentation.png'))
+
+    plt.show()
+
+    ####################################################################################################################
+    # 4. Extract the signals for the EVT1 epoch
+    ####################################################################################################################
+    EVTtype = 'EVT1' # Selected event
+    selected_event = 1.0 # '1' means the onset time of the event.
+
+    # Filter rows corresponding to the selected event
+    selected_events_data = df_EVT[df_EVT[EVTtype] == selected_event].copy() #SettingWithCopyWarning 참고 
+    selected_events_data['EVT_time'] = list((selected_events_data.index+1)/FPS)
+
+    # Create the plot
+    fig2 =plt.figure(figsize=(6, 10))
+    ax2 = fig2.add_subplot(211)
+
+    # Extract data for each event and plot as lineplot
+    all_lines = [] 
+
+    # Variables to store start_time and end_time 
+    start_time_list = []
+    end_time_list = []
+
+    pre_window_length = PRE_TIME
+    post_window_length = POST_TIME 
+
+    # List to store all lines
+    for index, row in selected_events_data.iterrows():
+        selected_event_time = row['EVT_time']
+
+        # Extract data from 5 seconds before to 10 seconds after the event time
+        start_time = selected_event_time - pre_window_length
+        end_time = selected_event_time + post_window_length
+        filtered_data = GCaMP_signal[(GCaMP_signal['time'] >= start_time) & (GCaMP_signal['time'] <= end_time)]
+
+        # Adjust the time to align the data points
+        filtered_data = filtered_data.copy() #Refer to SettingWithCopyWarning 
+        filtered_data['time'] -= selected_event_time
+
+        # Plot lineplot (in green with adjusted transparency)
+        x_data = filtered_data['time']
+        y_data = filtered_data['value']
+        
+        p1, = ax2.plot(x_data, y_data, color=[.7, .7, .7], linewidth=.5, label='Individual Trials')
+        all_lines.append(y_data.values)  # Store data points at each time point
+        start_time_list.append(start_time)
+        end_time_list.append(end_time)
+
+    # Convert data points at each time point to a 2D array
+    all_lines = pd.DataFrame(all_lines)
+    data = all_lines.to_numpy()
+
+    # Convert start, end times to a 2D array
+    df_TimeWindow = pd.DataFrame({'start' : start_time_list,
+                                'end' : end_time_list})
+
+    # Calculate the mean value at each time point
+    # mean_values = all_lines.mean(axis=0, numeric_only=False)
+    mean_values = np.nanmean(data, axis=0)
+    std_values = np.nanstd(data, axis=0)
+
+    min_length = min(len(mean_values), len(std_values))
+    x_data = (np.linspace(0, pre_window_length+post_window_length, min_length)) - pre_window_length
+
+    # Add title and labels to the plot
+    plt.title(EVTtype)
+    plt.xlabel('Time (sec)')
+    plt.ylabel(r'$\Delta$F/F (%)')
+
+    # Add legend
+    # plt.legend()
+    plt.grid(True)
+    plt.xlim(-pre_window_length, post_window_length)
+    plt.ylim(-6, 15)
+    plt.axvline(x=0, color = "red", linestyle = '--', linewidth = 1)
+
+    p2, = ax2.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+    p3 = ax2.fill_between(x_data, mean_values-std_values, mean_values+std_values, facecolor='green', alpha=0.15)
+    p4 = ax2.axvline(x=0, linewidth=3, color='slategray', label='Onset')
+
+    ax2.legend(handles=[p1, p2, p4], bbox_to_anchor=(1.1, 1))
+
+    ax3 = fig2.add_subplot(212)
+    cs = ax3.imshow(data, cmap=plt.cm.viridis, aspect='auto',
+                    interpolation='none', extent=[-pre_window_length,post_window_length,len(data),0], 
+                    vmax=int(signal_dF_F.max()), vmin=int(signal_dF_F.min()))
+    ax3.set_ylabel('Epoch Number')
+    ax3.set_yticks(np.arange(.5, len(data), 2))
+    ax3.set_yticklabels(np.arange(0, len(data), 2))
+    fig2.colorbar(cs)
+    
+    if SavePlots == True:
+        plt.savefig(os.path.join(output_folder, f"Plot_Epoch_averaging_{EVTtype}_Mean+individual.png"))
+
+    if SaveData==True:
+        all_lines.to_pickle(os.path.join(output_folder, 'Data_Extracted_signal_in_EVT1.pkl'))
+        df_TimeWindow.to_pickle(os.path.join(output_folder, 'Data_TimeWindow_for_EVT1.pkl'))
+
+    plt.show()
+
+    ####################################################################################################################
+    # 5. Extract the signals for the EVT2 epoch
+    ####################################################################################################################
+    # 선택한 이벤트
+    EVTtype = 'EVT2'
+    selected_event = 1.0 # '1' means the onset time of the event.
+
+    # 선택한 이벤트에 해당하는 행 필터링
+    selected_events_data = df_EVT[df_EVT[EVTtype] == selected_event].copy() #SettingWithCopyWarning 참고 
+    selected_events_data['EVT_time'] = list((selected_events_data.index+1)/FPS)
+
+    # 그래프 생성
+    fig3 =plt.figure(figsize=(6, 10))
+    ax4 = fig3.add_subplot(211)
+
+
+    # 각 이벤트에 대해 데이터를 추출하고 lineplot으로 그림
+    all_lines2 = [] 
+
+    # start_time과 end_time을 저장할 변수 생성 
+    start_time_list = []
+    end_time_list = []
+
+    pre_window_length = PRE_TIME
+    post_window_length = POST_TIME 
+
+    # 모든 line들을 저장하기 위한 리스트
+    for index, row in selected_events_data.iterrows():
+        selected_event_time = row['EVT_time']
+
+        # 이벤트 발생 시간을 기준으로 2초 전부터 3초 후까지의 데이터 추출
+        start_time = selected_event_time - pre_window_length
+        end_time = selected_event_time + post_window_length
+        filtered_data = GCaMP_signal[(GCaMP_signal['time'] >= start_time) & (GCaMP_signal['time'] <= end_time)]
+
+        # 시간을 조정하여 데이터 시점을 맞춤
+        filtered_data = filtered_data.copy() #SettingWithCopyWarning 참고 
+        filtered_data['time'] -= selected_event_time
+
+        # lineplot 그리기 (투명도를 조절하여 녹색으로 표시)
+        x_data = filtered_data['time']
+        y_data = filtered_data['value']
+        
+        p1, = ax4.plot(x_data, y_data, color=[.7, .7, .7], linewidth=.5, label='Individual Trials')
+        all_lines2.append(y_data.values)  # 각 시점에서의 데이터들을 저장
+        start_time_list.append(start_time)
+        end_time_list.append(end_time)
+
+    # 모든 시점에서의 데이터들을 2차원 배열로 변환
+    all_lines2 = pd.DataFrame(all_lines2)
+    data2 = all_lines2.to_numpy()
+
+    # start, end 시간을 2차원 배열로 변환 
+    df_TimeWindow = pd.DataFrame({'start' : start_time_list,
+                                'end' : end_time_list})
+
+    # 각 시점에서의 데이터들의 평균값 계산
+    # mean_values = all_lines.mean(axis=0, numeric_only=False)
+    mean_values = np.nanmean(data2, axis=0)
+    std_values = np.nanstd(data2, axis=0)
+
+    min_length = min(len(mean_values), len(std_values))
+    x_data = (np.linspace(0, pre_window_length+post_window_length, min_length))-pre_window_length
+
+    # 그래프 제목과 레이블 추가
+    plt.title(EVTtype)
+    plt.xlabel('Time (sec)')
+    plt.ylabel(r'$\Delta$F/F (%)')
+
+    # 범례 추가
+    # plt.legend()
+    plt.grid(True)
+    plt.ylim(-6, 15)
+    plt.xlim(-pre_window_length, post_window_length)
+    plt.axvline(x=0, color = "red", linestyle = '--', linewidth = 1)
+
+    p2, = ax4.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+    p3 = ax4.fill_between(x_data, mean_values-std_values, mean_values+std_values, facecolor='green', alpha=0.15)
+    p4 = ax4.axvline(x=0, linewidth=3, color='slategray', label='Onset')
+
+    ax4.legend(handles=[p1, p2, p4], bbox_to_anchor=(1.1, 1))
+
+    ax5 = fig3.add_subplot(212)
+    cs = ax5.imshow(data2, cmap=plt.cm.viridis, aspect='auto',
+                    interpolation='none', extent=[-pre_window_length,post_window_length,len(data2),0],
+                    vmax=int(signal_dF_F.max()), vmin=int(signal_dF_F.min()))
+    ax5.set_ylabel('Trial Number')
+    ax5.set_yticks(np.arange(.5, len(data2), 2))
+    ax5.set_yticklabels(np.arange(0, len(data2), 2))
+    fig3.colorbar(cs)
+    
+    if SavePlots == True:
+        plt.savefig(os.path.join(output_folder, f"Plot_Epoch_averaging_{EVTtype}_Mean+individual.png"))
+
+    if SaveData==True:
+        all_lines2.to_pickle(os.path.join(output_folder, f'Data_Extracted_signal_in_{EVTtype}.pkl'))
+        df_TimeWindow.to_pickle(os.path.join(output_folder, f'Data_TimeWindow_for_{EVTtype}.pkl'))
+
+    plt.show()
+
+    ####################################################################################################################
+    # 6. Extract the signals for the EVT3 epoch
+    ####################################################################################################################
+    # 선택한 이벤트
+    EVTtype = 'EVT3'
+    selected_event = 1.0 # '1' means the onset time of the event.
+
+    # 선택한 이벤트에 해당하는 행 필터링
+    selected_events_data = df_EVT[df_EVT[EVTtype] == selected_event].copy() #SettingWithCopyWarning 참고 
+    selected_events_data['EVT_time'] = list((selected_events_data.index+1)/FPS)
+
+    # 그래프 생성
+    fig4 =plt.figure(figsize=(6, 10))
+    ax6 = fig4.add_subplot(211)
+
+    # 각 이벤트에 대해 데이터를 추출하고 lineplot으로 그림
+    all_lines3 = []  
+
+    # start_time과 end_time을 저장할 변수 생성 
+    start_time_list = []
+    end_time_list = []
+
+    # 이벤트 발생 시간을 기준으로 몇 초 이전의 데이터와 몇 초 이후의 데이터까지 추출할지 결정 
+    pre_window_length = PRE_TIME
+    post_window_length = POST_TIME
+
+    # 모든 line들을 저장하기 위한 리스트
+    for index, row in selected_events_data.iterrows():
+        selected_event_time = row['EVT_time']
+
+        # 이벤트 발생 시간을 기준으로 2초 전부터 3초 후까지의 데이터 추출
+        start_time = selected_event_time - pre_window_length
+        end_time = selected_event_time + post_window_length
+        filtered_data = GCaMP_signal[(GCaMP_signal['time'] >= start_time) & (GCaMP_signal['time'] <= end_time)]
+
+        # 시간을 조정하여 데이터 시점을 맞춤
+        filtered_data = filtered_data.copy() #SettingWithCopyWarning 참고 
+        filtered_data['time'] -= selected_event_time
+
+        # lineplot 그리기 (투명도를 조절하여 녹색으로 표시)
+        x_data = filtered_data['time']
+        y_data = filtered_data['value']
+        
+        p1, = ax6.plot(x_data, y_data, color=[.7, .7, .7], linewidth=.5, label='Individual Trials')
+        all_lines3.append(y_data.values)  # 각 시점에서의 데이터들을 저장
+        start_time_list.append(start_time)
+        end_time_list.append(end_time)
+
+
+    # 모든 시점에서의 데이터들을 2차원 배열로 변환
+    all_lines3 = pd.DataFrame(all_lines3)
+    data3 = all_lines3.to_numpy()
+
+    # start, end 시간을 2차원 배열로 변환 
+    df_TimeWindow = pd.DataFrame({'start' : start_time_list,
+                                'end' : end_time_list})
+
+    # 각 시점에서의 데이터들의 평균값 계산
+    # mean_values = all_lines.mean(axis=0, numeric_only=False)
+    mean_values = np.nanmean(data3, axis=0)
+    std_values = np.nanstd(data3, axis=0)
+
+    min_length = min(len(mean_values), len(std_values))
+    x_data = (np.linspace(0, pre_window_length+post_window_length, min_length))-pre_window_length
+
+    # 그래프 제목과 레이블 추가
+    ax6.set_title(EVTtype)
+    ax6.set_xlabel('Time (sec)')
+    ax6.set_ylabel(r'$\Delta$F/F (%)')
+
+    # plt.legend() # 범례 추가
+    plt.grid(True)
+    plt.ylim(-6, 15)
+    plt.xlim(-pre_window_length, post_window_length)
+    # plt.rc('axes', labelsize=30)
+    # plt.rc('xtick', labelsize=20)
+    # plt.rc('ytick', labelsize=20)
+    p2, = ax6.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+    p3 = ax6.fill_between(x_data, mean_values-std_values, mean_values+std_values, facecolor='green', alpha=0.15)
+    p4 = ax6.axvline(x=0, linewidth=3, color='slategray', label='Onset')
+
+    ax6.legend(handles=[p1, p2, p4], bbox_to_anchor=(1.1, 1))
+
+    ax7 = fig4.add_subplot(212)
+    cs = ax7.imshow(data3, cmap=plt.cm.viridis, aspect='auto',
+                    interpolation='none', extent=[-pre_window_length,post_window_length,len(data3),0],
+                    vmax=int(signal_dF_F.max()), vmin=int(signal_dF_F.min()))
+    ax7.set_ylabel('Trial Number')
+    ax7.set_yticks(np.arange(.5, len(data3), 2))
+    ax7.set_yticklabels(np.arange(0, len(data3), 2))
+    fig4.colorbar(cs)
+
+    if SavePlots == True:
+        plt.savefig(os.path.join(output_folder, f"Plot_Epoch_averaging_{EVTtype}_Mean+individual.png"))
+
+    if SaveData==True:
+        all_lines3.to_pickle(os.path.join(output_folder, f'Data_Extracted_signal_in_{EVTtype}.pkl'))
+        df_TimeWindow.to_pickle(os.path.join(output_folder, f'Data_TimeWindow_for_{EVTtype}.pkl'))
+
+    plt.show()
+
+    return
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+def Epoch_Analysis_2EVT(pkl_path:str = "Final_table_raw_trace.pkl",
+                evt_path:str = "Data_DLC.csv",
+                PRE_TIME:int = 5,
+                POST_TIME:int = 10,
+                FPS:int = 25,
+                Rec_duration:int = 600,
+                SavePlots:bool = False,
+                SaveData:bool = False,
+                output_folder:str = "Epoch_Analysis"):
+    '''
+    This function performs epoch analysis on the processed fluorescence data, aligning the data to behavioral events and extracting relevant information about these epochs.
+
+    Parameters:
+    pkl_path (str): Path to the pickle file containing the processed fluorescence data.
+    evt_path (str): Path to the CSV file containing the behavioral events data.
+    Pre_window_len (int): Length of the pre-event window in seconds.
+    Post_window_len (int): Length of the post-event window in seconds.
+    FPS (int): Frames per second of the recording.
+    Rec_duration (int): Duration of the recording in seconds.
+    SavePlots (bool): Whether to save the plots of the detected epochs.
+    SaveData (bool): Whether to save the data of the detected epochs.
+
+    Returns:
+    None
+
+    '''
+
+    ####################################################################################################################
+    # 1. Import necessary libraries
+    ####################################################################################################################
+    import os
+    import pandas as pd
+    import numpy as  np
+    import pylab as plt
+    from matplotlib.patches import Patch
+        
+    # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    # os.chdir(output_folder)
+
+    ####################################################################################################################
+    # 2. Load the data
+    ####################################################################################################################
+    GCaMP_signal = pd.read_pickle(pkl_path)
+    time_sec = GCaMP_signal.time
+    signal_dF_F = GCaMP_signal.value
+
+    df_EVT = pd.read_csv(evt_path, header=0, index_col=0)
+
+    ####################################################################################################################
+    # 3. Generate plots of the fluorescence signal aligned to behavioral events
+    ####################################################################################################################
+    # Generate time series of behavioral data
+    CamTickTime = np.linspace(0, Rec_duration, Rec_duration*FPS)
+
+    # First make a continous time series of social events
+    # Event1 index == 1이면 Nose-to-Snout interaction ON, Event1 index == 2이면 Nose-to-Snout interaction OFF.
+    if 'EVT1' in df_EVT.columns: 
+        S_interaction_ON = np.array(CamTickTime[df_EVT.EVT1 == 1])
+        S_interaction_OFF = np.array(CamTickTime[df_EVT.EVT1 == 2])
+
+    # If Event2_index == 1, else -> S_zone entry, if EVT2 == 2, S_zone -> else exit.
+    S_zone_in = np.array(CamTickTime[df_EVT.EVT2 == 1]) 
+    # S_zone_in = np.insert(S_zone_in,0,CamTick[0]) # Adjust the index of Frame0 arbitrarily if starting from S_zone.
+    S_zone_out = np.array(CamTickTime[df_EVT.EVT2 == 2]) 
+
+    # Similarly for E-zone. If EVT3 == 1, else -> E-zone, if EVT3 == 2, E-zone -> else
+    E_zone_in = np.array(CamTickTime[df_EVT.EVT3 == 1])
+    E_zone_out = np.array(CamTickTime[df_EVT.EVT3 == 2])
+
+    # First subplot in a series: dFF with social epocs
+    fig1 = plt.figure(figsize=(10,6))
+    ax1 = fig1.add_subplot(211)
+
+    # Create the line plot
+    p1, = ax1.plot(time_sec, signal_dF_F,linewidth=1, color='green', label='GCaMP')
+
+    # Add the vertical spnas using 'axvspan'.
+    for on, off in zip(S_zone_in, S_zone_out):
+        ax1.axvspan(on, off, alpha=0.25, color='dodgerblue')
+    for on, off in zip(E_zone_in, E_zone_out):
+        ax1.axvspan(on, off, alpha=0.25, color='orange')
+    ax1.set_ylim(-10, 15)
+    ax1.set_xlim(0, 600)
+    ax1.set_ylabel(r'$\Delta$F/F (%)')
+    ax1.set_xlabel('Time (sec)')
+    ax1.set_title('dFF with ROI segmentation')
+
+    # Create a custom legend for the vertical spans. 
+    handles, labels = ax1.get_legend_handles_labels()
+    handles.append(Patch(color='dodgerblue', alpha=0.25, label='S-zone'))
+    handles.append(Patch(color='orange', alpha=0.25, label='E-zone'))
+
+    ax1.legend(handles=handles, loc='lower right',bbox_to_anchor=(1.1, 1))
+
+    fig1.tight_layout()
+
+    if SavePlots == True: 
+        fig1.savefig(os.path.join(output_folder, 'Plot_dFF_with_ROI_segmentation.png'))
+
+    plt.show()
+
+    ####################################################################################################################
+    # 4. Extract the signals for the EVT1 epoch
+    ####################################################################################################################
+
+    ####################################################################################################################
+    # 5. Extract the signals for the EVT2 epoch
+    ####################################################################################################################
+    # 선택한 이벤트
+    EVTtype = 'EVT2'
+    selected_event = 1.0 # '1' means the onset time of the event.
+
+    # 선택한 이벤트에 해당하는 행 필터링
+    selected_events_data = df_EVT[df_EVT[EVTtype] == selected_event].copy() #SettingWithCopyWarning 참고 
+    selected_events_data['EVT_time'] = list((selected_events_data.index+1)/FPS)
+
+    # 그래프 생성
+    fig3 =plt.figure(figsize=(6, 10))
+    ax4 = fig3.add_subplot(211)
+
+
+    # 각 이벤트에 대해 데이터를 추출하고 lineplot으로 그림
+    all_lines2 = [] 
+
+    # start_time과 end_time을 저장할 변수 생성 
+    start_time_list = []
+    end_time_list = []
+
+    pre_window_length = PRE_TIME
+    post_window_length = POST_TIME
+
+    # 모든 line들을 저장하기 위한 리스트
+    for index, row in selected_events_data.iterrows():
+        selected_event_time = row['EVT_time']
+
+        # 이벤트 발생 시간을 기준으로 2초 전부터 3초 후까지의 데이터 추출
+        start_time = selected_event_time - pre_window_length
+        end_time = selected_event_time + post_window_length
+        filtered_data = GCaMP_signal[(GCaMP_signal['time'] >= start_time) & (GCaMP_signal['time'] <= end_time)]
+
+        # 시간을 조정하여 데이터 시점을 맞춤
+        filtered_data = filtered_data.copy() #SettingWithCopyWarning 참고 
+        filtered_data['time'] -= selected_event_time
+
+        # lineplot 그리기 (투명도를 조절하여 녹색으로 표시)
+        x_data = filtered_data['time']
+        y_data = filtered_data['value']
+        
+        p1, = ax4.plot(x_data, y_data, color=[.7, .7, .7], linewidth=.5, label='Individual Trials')
+        all_lines2.append(y_data.values)  # 각 시점에서의 데이터들을 저장
+        start_time_list.append(start_time)
+        end_time_list.append(end_time)
+
+    # 모든 시점에서의 데이터들을 2차원 배열로 변환
+    all_lines2 = pd.DataFrame(all_lines2)
+    data2 = all_lines2.to_numpy()
+
+    # start, end 시간을 2차원 배열로 변환 
+    df_TimeWindow = pd.DataFrame({'start' : start_time_list,
+                                'end' : end_time_list})
+
+    # 각 시점에서의 데이터들의 평균값 계산
+    # mean_values = all_lines.mean(axis=0, numeric_only=False)
+    mean_values = np.nanmean(data2, axis=0)
+    std_values = np.nanstd(data2, axis=0)
+
+    min_length = min(len(mean_values), len(std_values))
+    x_data = (np.linspace(0, pre_window_length+post_window_length, min_length))-pre_window_length
+
+    # 그래프 제목과 레이블 추가
+    plt.title(EVTtype)
+    plt.xlabel('Time (sec)')
+    plt.ylabel(r'$\Delta$F/F (%)')
+
+    # 범례 추가
+    # plt.legend()
+    plt.grid(True)
+    plt.ylim(-6, 15)
+    plt.xlim(-pre_window_length, post_window_length)
+    plt.axvline(x=0, color = "red", linestyle = '--', linewidth = 1)
+
+    p2, = ax4.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+    p3 = ax4.fill_between(x_data, mean_values-std_values, mean_values+std_values, facecolor='green', alpha=0.15)
+    p4 = ax4.axvline(x=0, linewidth=3, color='slategray', label='Onset')
+
+    ax4.legend(handles=[p1, p2, p4], bbox_to_anchor=(1.1, 1))
+
+    ax5 = fig3.add_subplot(212)
+    cs = ax5.imshow(data2, cmap=plt.cm.viridis, aspect='auto',
+                    interpolation='none', extent=[-pre_window_length,post_window_length,len(data2),0],
+                    vmax=int(signal_dF_F.max()), vmin=int(signal_dF_F.min()))
+    ax5.set_ylabel('Trial Number')
+    ax5.set_yticks(np.arange(.5, len(data2), 2))
+    ax5.set_yticklabels(np.arange(0, len(data2), 2))
+    fig3.colorbar(cs)
+    
+    if SavePlots == True:
+        plt.savefig(os.path.join(output_folder, f"Plot_Epoch_averaging_{EVTtype}_Mean+individual.png"))
+
+    if SaveData==True:
+        all_lines2.to_pickle(os.path.join(output_folder, f'Data_Extracted_signal_in_{EVTtype}.pkl'))
+        df_TimeWindow.to_pickle(os.path.join(output_folder, f'Data_TimeWindow_for_{EVTtype}.pkl'))
+
+    plt.show()
+
+    ####################################################################################################################
+    # 6. Extract the signals for the EVT3 epoch
+    ####################################################################################################################
+    # 선택한 이벤트
+    EVTtype = 'EVT3'
+    selected_event = 1.0 # '1' means the onset time of the event.
+
+    # 선택한 이벤트에 해당하는 행 필터링
+    selected_events_data = df_EVT[df_EVT[EVTtype] == selected_event].copy() #SettingWithCopyWarning 참고 
+    selected_events_data['EVT_time'] = list((selected_events_data.index+1)/FPS)
+
+    # 그래프 생성
+    fig4 =plt.figure(figsize=(6, 10))
+    ax6 = fig4.add_subplot(211)
+
+    # 각 이벤트에 대해 데이터를 추출하고 lineplot으로 그림
+    all_lines3 = []  
+
+    # start_time과 end_time을 저장할 변수 생성 
+    start_time_list = []
+    end_time_list = []
+
+    # 이벤트 발생 시간을 기준으로 몇 초 이전의 데이터와 몇 초 이후의 데이터까지 추출할지 결정 
+    pre_window_length = PRE_TIME
+    post_window_length = POST_TIME 
+
+    # 모든 line들을 저장하기 위한 리스트
+    for index, row in selected_events_data.iterrows():
+        selected_event_time = row['EVT_time']
+
+        # 이벤트 발생 시간을 기준으로 2초 전부터 3초 후까지의 데이터 추출
+        start_time = selected_event_time - pre_window_length
+        end_time = selected_event_time + post_window_length
+        filtered_data = GCaMP_signal[(GCaMP_signal['time'] >= start_time) & (GCaMP_signal['time'] <= end_time)]
+
+        # 시간을 조정하여 데이터 시점을 맞춤
+        filtered_data = filtered_data.copy() #SettingWithCopyWarning 참고 
+        filtered_data['time'] -= selected_event_time
+
+        # lineplot 그리기 (투명도를 조절하여 녹색으로 표시)
+        x_data = filtered_data['time']
+        y_data = filtered_data['value']
+        
+        p1, = ax6.plot(x_data, y_data, color=[.7, .7, .7], linewidth=.5, label='Individual Trials')
+        all_lines3.append(y_data.values)  # 각 시점에서의 데이터들을 저장
+        start_time_list.append(start_time)
+        end_time_list.append(end_time)
+
+
+    # 모든 시점에서의 데이터들을 2차원 배열로 변환
+    all_lines3 = pd.DataFrame(all_lines3)
+    data3 = all_lines3.to_numpy()
+
+    # start, end 시간을 2차원 배열로 변환 
+    df_TimeWindow = pd.DataFrame({'start' : start_time_list,
+                                'end' : end_time_list})
+
+    # 각 시점에서의 데이터들의 평균값 계산
+    # mean_values = all_lines.mean(axis=0, numeric_only=False)
+    mean_values = np.nanmean(data3, axis=0)
+    std_values = np.nanstd(data3, axis=0)
+
+    min_length = min(len(mean_values), len(std_values))
+    x_data = (np.linspace(0, pre_window_length+post_window_length, min_length))-pre_window_length
+
+    # 그래프 제목과 레이블 추가
+    ax6.set_title(EVTtype)
+    ax6.set_xlabel('Time (sec)')
+    ax6.set_ylabel(r'$\Delta$F/F (%)')
+
+    # plt.legend() # 범례 추가
+    plt.grid(True)
+    plt.ylim(-6, 15)
+    plt.xlim(-pre_window_length, post_window_length)
+    # plt.rc('axes', labelsize=30)
+    # plt.rc('xtick', labelsize=20)
+    # plt.rc('ytick', labelsize=20)
+    p2, = ax6.plot(x_data, mean_values, color='green', label='Mean Value', linewidth=4)
+    p3 = ax6.fill_between(x_data, mean_values-std_values, mean_values+std_values, facecolor='green', alpha=0.15)
+    p4 = ax6.axvline(x=0, linewidth=3, color='slategray', label='Onset')
+
+    ax6.legend(handles=[p1, p2, p4], bbox_to_anchor=(1.1, 1))
+
+    ax7 = fig4.add_subplot(212)
+    cs = ax7.imshow(data3, cmap=plt.cm.viridis, aspect='auto',
+                    interpolation='none', extent=[-pre_window_length,post_window_length,len(data3),0],
+                    vmax=int(signal_dF_F.max()), vmin=int(signal_dF_F.min()))
+    ax7.set_ylabel('Trial Number')
+    ax7.set_yticks(np.arange(.5, len(data3), 2))
+    ax7.set_yticklabels(np.arange(0, len(data3), 2))
+    fig4.colorbar(cs)
+
+    if SavePlots == True:
+        plt.savefig(os.path.join(output_folder, f"Plot_Epoch_averaging_{EVTtype}_Mean+individual.png"))
+
+    if SaveData==True:
+        all_lines3.to_pickle(os.path.join(output_folder, f'Data_Extracted_signal_in_{EVTtype}.pkl'))
+        df_TimeWindow.to_pickle(os.path.join(output_folder, f'Data_TimeWindow_for_{EVTtype}.pkl'))
+
+    plt.show()
 
     return

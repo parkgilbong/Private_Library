@@ -21,16 +21,13 @@ def Set_WD(base_folder: str, *args: str) -> str:
 
     full_path = Path(base_folder).joinpath(*args)
 
-    try:
+    if full_path.exists():
+        print(f"Directory {full_path} already exists.")
+    else:
         full_path.mkdir(parents=True, exist_ok=True)
-        os.chdir(full_path)
-        if full_path.exists():
-            print(f"Directory {full_path} already exists.")
-        else:
-            print(f"Directory {full_path} created.")
-        print(f"The working directory is set to {full_path}.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Directory {full_path} created.")
+    os.chdir(full_path)
+    print(f"The working directory is set to {full_path}.")
 
     return str(full_path)
 
