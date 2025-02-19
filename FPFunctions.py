@@ -572,8 +572,8 @@ def Peak_Analysis(pkl_path:str = "Final_table_raw_trace.pkl",
                 prominence_thres:float = 2, 
                 amplitude_thres:float = 4, 
                 FPS:int = 25, 
-                pre_window_len:int=2, 
-                post_window_len:int=5,
+                pre_window_len:int=3, 
+                post_window_len:int=3,
                 output_folder:str = "Peak_Analysis", 
                 SavePlots:bool = False, 
                 SaveData:bool = False, 
@@ -684,7 +684,7 @@ def Peak_Analysis(pkl_path:str = "Final_table_raw_trace.pkl",
             plt.show()
 
             # Extract and save Ca2+ traces from 1 second before to 2 seconds after the detected peaks
-            start_time_array = np.array(time_sec[Final_onset])
+            start_time_array = np.array(time_sec[Final_peaks])
             pre_window_length = pre_window_len
             post_window_length = post_window_len
 
@@ -773,7 +773,7 @@ def Peak_Analysis(pkl_path:str = "Final_table_raw_trace.pkl",
             # 5. Save the videos
             ####################################################################################################################
             if SaveVideos == True:
-                slices_df = pd.DataFrame({'start_frame': df_peaks.FrameForOnset - pre_window_length*FPS,
+                slices_df = pd.DataFrame({'start_frame': df_peaks.FrameForPeak - pre_window_length*FPS,
                                         'end_frame': df_peaks.FrameForPeak + post_window_length*FPS})
             
                 VideoFunctions.extract_video_slices(video_path= video_path,

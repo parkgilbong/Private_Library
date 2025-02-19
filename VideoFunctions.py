@@ -116,7 +116,7 @@ def extract_video_slices(video_path: str, slices_df, output_folder: str):
 
         # Define the codec and create a VideoWriter object to save the sliced video
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        output_path = f"{output_folder}/slice_{slice_number}.avi"
+        output_path = f"{output_folder}/slice_{slice_number:03d}.avi"
         out = cv2.VideoWriter(output_path, fourcc, fps, 
                                 (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
                                 int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
@@ -326,7 +326,7 @@ def add_inset_char2(video_slice_path: str, chart_path: str, filename: str, posit
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(filename, fourcc, main_fps, (main_width, main_height))
 
-    while True:
+    while cap.isOpened():
         ret_main, frame_main = main_cap.read()
         ret_chart, frame_chart = chart_cap.read()
 
@@ -552,3 +552,96 @@ def resize_video(input_path, output_path, scale_factor=0.5):
     cap.release()
     out.release()
     print(f"Resized video saved as {output_path}") 
+
+######################################################################################################################################################################
+######################################################################################################################################################################
+def Generate_montage(input_folder: str, output_filename: str, rows: int = 3, cols: int = 3, frame_rate: int = 25, duration: int = 600, codec: str = 'mp4v', titles: list = [], popups: list = [], scale_factor: float = 1.0):
+    """
+    Generates a montage movie from movies in a specified folder.
+    Args:
+        input_folder (str): Path to the folder containing the movies.
+        output_filename (str): Name of the output video file.
+        rows (int, optional): Number of rows in the montage. Defaults to 3.
+        cols (int, optional): Number of columns in the montage. Defaults to 3.
+        frame_rate (int, optional): Frame rate of the video. Defaults to 25.
+        duration (int, optional): Duration of the video in seconds. Defaults to 600.
+        codec (str, optional): Codec to be used for the video. Defaults to 'mp4v'.
+        titles (list of str, optional): Titles for each subset movie. Defaults to [].
+        popups (list of tuples, optional): Pop-up texts with their start times and durations. Defaults to [].
+        scale_factor (float, optional): Scale factor for resizing the montage. Defaults to 1.0.
+    Returns:
+        None
+    Example:
+        Generate_montage('/path/to/movies', 'output_montage.mp4', rows=2, cols=2, frame_rate=30, duration=120, codec='XVID', titles=['Title1', 'Title2'], popups=[('Text', 10, 5)], scale_factor=0.5)
+    """
+    import cv2
+    import os
+    import numpy as np
+    from tqdm import tqdm
+
+    # Get list of movie files in the input folder
+    movie_files = [os.path.join(input_folder, movie) for movie in os.listdir(input_folder) if movie.endswith(".mp4") or movie.endswith(".avi")]
+    
+    if not movie_files:
+        print("No movie files found.")
+        return
+    
+    # Open all movie files
+    caps = [cv2.VideoCapture(movie) for movie in movie_files]
+    if not all(cap.isOpened() for cap in caps):
+        print("Error: Could not open one or more movies.")
+        return
+
+    # Get the dimensions of the movies
+    frame_width = int(caps[0].get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(caps[0].get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # Create a blank canvas for the montage
+    montage_height = int(rows * frame_height * scale_factor)
+    montage_width = int(cols * frame_width * scale_factor)
+    montage = np.zeros((montage_height, montage_width, 3), dtype=np.uint8)
+
+    # Define the codec and create VideoWriter object
+    fourcc = cv2.VideoWriter_fourcc(*codec)
+    video_writer = cv2.VideoWriter(output_filename, fourcc, frame_rate, (montage_width, montage_height))
+
+    max_index = int(min([cap.get(cv2.CAP_PROP_FRAME_COUNT) for cap in caps]) * (frame_rate / caps[0].get(cv2.CAP_PROP_FPS)))
+
+    for i in tqdm(range(max_index), desc="Generating Montage"):
+        # Fill the montage with frames from movies
+        for r in range(rows):
+            for c in range(cols):
+                idx = (i + r * cols + c) % len(caps)  # Loop through the movies
+                ret, frame = caps[idx].read()
+                if not ret:
+                    # If the movie ends, loop it
+                    caps[idx].set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    ret, frame = caps[idx].read()
+                if ret:
+                    # Resize the frame
+                    frame = cv2.resize(frame, (int(frame_width * scale_factor), int(frame_height * scale_factor)))
+                    # Place the frame in the correct position in the montage
+                    montage[r * int(frame_height * scale_factor):(r + 1) * int(frame_height * scale_factor), c * int(frame_width * scale_factor):(c + 1) * int(frame_width * scale_factor)] = frame
+                else:
+                    # Fill the remaining grid with black if no frame is available
+                    montage[r * int(frame_height * scale_factor):(r + 1) * int(frame_height * scale_factor), c * int(frame_width * scale_factor):(c + 1) * int(frame_width * scale_factor)] = np.zeros((int(frame_height * scale_factor), int(frame_width * scale_factor), 3), dtype=np.uint8)
+
+                # Add title to each subset movie
+                if titles and idx < len(titles):
+                    title = titles[idx % len(titles)]
+                    cv2.putText(montage, title, (c * int(frame_width * scale_factor) + 10, r * int(frame_height * scale_factor) + 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+        # Add pop-up text
+        for text, start_time, duration in popups:
+            start_frame = start_time * frame_rate
+            end_frame = start_frame + duration * frame_rate
+            if start_frame <= i < end_frame:
+                cv2.putText(montage, text, (10, montage_height - 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+        # Write the montage frame to the video
+        video_writer.write(montage)
+
+    video_writer.release()
+    for cap in caps:
+        cap.release()
+    print(f"Montage video saved as {output_filename}")
