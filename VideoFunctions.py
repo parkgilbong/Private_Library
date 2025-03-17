@@ -645,3 +645,98 @@ def Generate_montage(input_folder: str, output_filename: str, rows: int = 3, col
     for cap in caps:
         cap.release()
     print(f"Montage video saved as {output_filename}")
+
+######################################################################################################################################################################
+######################################################################################################################################################################
+def draw_polygon_on_image(image, polygon, color=(0, 255, 0), thickness=2):
+    """
+    Draws a polygon on an image.
+
+    Parameters:
+    - image: The image on which to draw the polygon.
+    - polygon: A shapely.geometry.Polygon object defining the region of interest.
+    - color: The color of the polygon (default is green).
+    - thickness: The thickness of the polygon lines (default is 2).
+
+    Returns:
+    - The image with the polygon drawn on it.
+    """
+    import cv2
+    from shapely.geometry import Polygon
+    import numpy as np
+
+    # Convert the polygon to a list of points
+    points = np.array(polygon.exterior.coords, dtype=np.int32)
+    # Draw the polygon on the image
+    cv2.polylines(image, [points], isClosed=True, color=color, thickness=thickness)
+
+    return image
+
+######################################################################################################################################################################
+######################################################################################################################################################################
+def extract_first_frame_and_draw_rois(video_path: str, rois: list, output_image_path: str):
+    """
+    Extracts the first frame from an AVI-formatted movie, draws the ROIs on the image, and saves the resulting image.
+
+    Parameters:
+    - video_path (str): Path to the AVI-formatted movie.
+    - rois (list of shapely.geometry.Polygon): List of Polygon objects defining the regions of interest (ROIs).
+    - output_image_path (str): Path to save the resulting image with ROIs drawn.
+
+    Returns:
+    - None
+
+    Example:
+
+    video_path = 'path/to/your/video.avi'
+    roi_S = Polygon([(629, 218), (631, 257), (603, 278), (575, 278), (544, 272), (514, 258), (489, 241), (469, 217), (456, 197), (445, 172), (441, 151), (439, 130), (441, 105), (443, 90), (472, 97), (483, 117), (500, 145), (525, 173), (550, 191), (575, 203), (601, 212)])
+    roi_E = Polygon([(482, 943), (448, 943), (441, 915), (440, 891), (442, 863), (451, 832), (466, 804), (484, 780), (508, 762), (526, 750), (548, 741), (576, 734), (602, 733), (634, 763), (628, 795), (602, 800), (569, 813), (541, 830), (516, 856), (495, 887), (486, 922)])
+    rois = [roi_S, roi_E]
+    output_image_path = 'output_image_with_rois.png'
+    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    extract_first_frame_and_draw_rois(video_path, rois, output_image_path)
+    """
+
+    import cv2
+    from shapely.geometry import Polygon
+    import numpy as np
+
+    # Open the video file
+    cap = cv2.VideoCapture(video_path)
+    
+    if not cap.isOpened():
+        print(f"Error: Could not open video {video_path}")
+        return
+
+    def draw_polygon_on_image(image, polygon, color=(0, 255, 0), thickness=2):
+        # Convert the polygon to a list of points
+        points = np.array(polygon.exterior.coords, dtype=np.int32)
+        # Draw the polygon on the image
+        cv2.polylines(image, [points], isClosed=True, color=color, thickness=thickness)
+
+        return image
+
+    # Read the first frame
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Could not read the first frame.")
+        return
+
+    # Draw the ROIs on the frame
+    for roi in rois:
+        frame = draw_polygon_on_image(frame, roi)
+
+    # Save the resulting image
+    cv2.imwrite(output_image_path, frame)
+    print(f"Image with ROIs saved as {output_image_path}")
+
+    # Display the resulting image
+    cv2.imshow('Image with ROIs', frame)
+    cv2.waitKey(0)  # Wait for a key press to close the window
+    cv2.destroyAllWindows()
+
+    # Release the video capture object
+    cap.release()
+
+    # Release the video capture object
+    cap.release()

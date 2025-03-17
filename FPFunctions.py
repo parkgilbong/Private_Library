@@ -1,10 +1,12 @@
-def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_duration: int = 600, Namefor405: str = '405', Namefor465: str = '465'):
+def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, Detrending_method:str = 'Exp_fit', Use_CamTick:bool = True, FPS: int = 25, Rec_duration: int = 600, Namefor405: str = '405', Namefor465: str = '465', SaveAsCSV:bool = False):
     """
     This function preprocesses the 1 channel(465) FP data from the tank file (raw data) and saves it as a .csv file.
         
     Parameters:
     Tank_path (str): Path to the tank file
     Dest_folder (str): Path to the folder where the .csv file will be saved
+    Detrending_method (str): Method for detrending the signals. Options are 'Exp_fit' or 'Highpass_filter'. Default is 'Exp_fit'.
+    Use_CamTick (bool): 
     FPS (int): Frames per second of the recording
     Rec_duration (int): Duration of the recording in seconds
     
@@ -34,12 +36,15 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     FPdata = tdt.read_block(Tank_path) # Read the data block from the tank file
     print(f'Data loaded successfully:{Tank_path}')
 
-    CamTick = FPdata.epocs.PtC0.onset[0:(FPS*Rec_duration)] # 'FPS * Duration_sec' determines the length of CamTick
-    ToffsetForCam = CamTick[0] # Get the initial timestamp
-    corrected_CamTick = CamTick - ToffsetForCam # Adjust the CamTick to start from zero
-    df_CamTick = pd.DataFrame({'original': CamTick,
-                            'corrected': corrected_CamTick}) # Create a DataFrame for CamTick
-    df_CamTick.to_csv('Data_CamTick.csv', header=True) # Save the DataFrame as a CSV file
+    if Use_CamTick == True: 
+        CamTick = FPdata.epocs.PtC0.onset[0:(FPS*Rec_duration)] # 'FPS * Duration_sec' determines the length of CamTick
+        ToffsetForCam = CamTick[0] # Get the initial timestamp
+        corrected_CamTick = CamTick - ToffsetForCam # Adjust the CamTick to start from zero
+        df_CamTick = pd.DataFrame({'original': CamTick,
+                                    'corrected': corrected_CamTick}) # Create a DataFrame for CamTick
+        df_CamTick.to_csv('Data_CamTick.csv', header=True) # Save the DataFrame as a CSV file
+    else:
+        ToffsetForCam = 2 # Take a margin to remove the abnormal singal at the beginning of the recording
 
     # export isosbestic and GCaMP signals
     control_whole = FPdata.streams['_405A'].data # Extract the control signal data
@@ -49,12 +54,20 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     sampling_rate = FPdata.streams['_405A'].fs # Get the sampling rate
     time_seconds = np.linspace(1, len(control_whole), len(control_whole))/sampling_rate # Generate time array in seconds
     
-    # Extract the time array for behavior data
-    time_sec = time_seconds[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
-
-    # Extract the raw control and signal data for the behavior period
-    control_raw = control_whole[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
-    signal_raw = signal_whole[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
+    if Use_CamTick == True:
+        # Extract the time array for behavior data
+        time_sec = time_seconds[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
+        
+        # Extract the raw control and signal data for the behavior period
+        control_raw = control_whole[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
+        signal_raw = signal_whole[np.min(np.where(time_seconds >= CamTick[0])) : np.max(np.where(time_seconds <= CamTick[(FPS*Rec_duration-1)]))]
+    else: 
+        inds = np.where(time_seconds > ToffsetForCam)
+        ind = inds[0][0]
+        time = time_seconds[ind:] # go from ind to final index
+        control_raw = control_whole[ind:]
+        signal_raw = signal_whole[ind:]
+        time_sec = time_seconds[ind:] 
 
     ####################################################################################################################
     # 2. Plot the raw signals
@@ -127,43 +140,54 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
                             save = True)
 
     ####################################################################################################################
-    # 4. The double exponential curve fitting b (photobleaching correction or detrending)
+    # 4. Photobleaching correction (or detrending) using a double exponential curve fitting or High-pass filtering 
     ####################################################################################################################
-    def double_exponential(t, const, amp_fast, amp_slow, tau_slow, tau_multiplier):
-        '''Compute a double exponential function with constant offset.
-        Parameters:
-        t       : Time vector in seconds.
-        const   : Amplitude of the constant offset. 
-        amp_fast: Amplitude of the fast component.  
-        amp_slow: Amplitude of the slow component.  
-        tau_slow: Time constant of slow component in seconds.
-        tau_multiplier: Time constant of fast component relative to slow. 
-        '''
-        tau_fast = tau_slow*tau_multiplier
-        return const+amp_slow*np.exp(-t/tau_slow)+amp_fast*np.exp(-t/tau_fast)
+    if Detrending_method == 'Exp_fit': 
+    
+        def double_exponential(t, const, amp_fast, amp_slow, tau_slow, tau_multiplier):
+            '''Compute a double exponential function with constant offset.
+            Parameters:
+            t       : Time vector in seconds.
+            const   : Amplitude of the constant offset. 
+            amp_fast: Amplitude of the fast component.  
+            amp_slow: Amplitude of the slow component.  
+            tau_slow: Time constant of slow component in seconds.
+            tau_multiplier: Time constant of fast component relative to slow. 
+            '''
+            tau_fast = tau_slow*tau_multiplier
+            return const+amp_slow*np.exp(-t/tau_slow)+amp_fast*np.exp(-t/tau_fast)
 
-    # Fit curve to GCaMP6f signal.
-    max_sig = np.max(signal_denoised) 
-    inital_params = [max_sig/2, max_sig/4, max_sig/4, 3600, 0.1]
-    bounds = ([0      , 0      , 0      , 600  , 0],
-            [max_sig, max_sig, max_sig, 36000, 1]) 
-    signal_parms, parm_cov = curve_fit(double_exponential, time_sec, signal_denoised,
-                                    p0=inital_params, bounds=bounds, maxfev=1000)
+        # Fit curve to GCaMP6f signal.
+        max_sig = np.max(signal_denoised) 
+        inital_params = [max_sig/2, max_sig/4, max_sig/4, 3600, 0.1]
+        bounds = ([0      , 0      , 0      , 600  , 0],
+                [max_sig, max_sig, max_sig, 36000, 1]) 
+        signal_parms, parm_cov = curve_fit(double_exponential, time_sec, signal_denoised,
+                                        p0=inital_params, bounds=bounds, maxfev=1000)
 
-    signal_expfit = double_exponential(time_sec, *signal_parms)
+        signal_expfit = double_exponential(time_sec, *signal_parms)
 
-    # Fit curve to Isosbestic signal.
-    max_sig = np.max(control_denoised)
-    inital_params = [max_sig/2, max_sig/4, max_sig/4, 3600, 0.1]
-    bounds = ([0      , 0      , 0      , 600  , 0],
-            [max_sig, max_sig, max_sig, 36000, 1])
-    control_parms, parm_cov = curve_fit(double_exponential, time_sec, control_denoised, 
-                                    p0=inital_params, bounds=bounds, maxfev=1000)
+        # Fit curve to Isosbestic signal.
+        max_sig = np.max(control_denoised)
+        inital_params = [max_sig/2, max_sig/4, max_sig/4, 3600, 0.1]
+        bounds = ([0      , 0      , 0      , 600  , 0],
+                [max_sig, max_sig, max_sig, 36000, 1])
+        control_parms, parm_cov = curve_fit(double_exponential, time_sec, control_denoised, 
+                                        p0=inital_params, bounds=bounds, maxfev=1000)
 
-    control_expfit = double_exponential(time_sec, *control_parms)
+        control_expfit = double_exponential(time_sec, *control_parms)
 
-    signal_detrended = signal_denoised - signal_expfit
-    control_detrended = control_denoised - control_expfit
+        signal_detrended = signal_denoised - signal_expfit
+        control_detrended = control_denoised - control_expfit
+
+    elif Detrending_method == 'Highpass_filter': 
+
+        b,a = butter(2, 0.001, btype='high', fs=sampling_rate)
+        signal_highpass = filtfilt(b,a, signal_denoised, padtype='even')
+        control_highpass = filtfilt(b,a, control_denoised, padtype='even')
+
+        signal_detrended = signal_highpass
+        control_detrended = control_highpass
 
     ####################################################################################################################
     # 5. Motion correction
@@ -189,43 +213,68 @@ def FP_preprocessing_1ch(Tank_path:str, Dest_folder:str, FPS: int = 25, Rec_dura
     ####################################################################################################################
     # 6. Normalize the signals
     ####################################################################################################################
-    # compute dF/F and plot
-    signal_dF_F = 100*signal_corrected/signal_expfit
-    PlotFunctions.plot_sigle_line(x= time_sec,
-                            y= signal_dF_F,
-                            Fig_size= (10,6),
-                            Fig_title= f'{Namefor465}_dFF',
-                            x_label= 'Time (sec)',
-                            y_label= f'{Namefor465} dF/F (%)',
-                            x_lim= (None, None),
-                            y_lim= (None, None),
-                            colour= 'green',
-                            save= True)
-    
-    # compute z-score and plot
-    signal_zscored = (signal_corrected-np.mean(signal_corrected))/np.std(signal_corrected)
-    PlotFunctions.plot_sigle_line(x= time_sec,
-                            y= signal_zscored,
-                            Fig_size= (10,6),
-                            Fig_title= f'{Namefor465}_z-score',
-                            x_label= 'Time (sec)',
-                            y_label= f'{Namefor465} z-score',
-                            x_lim= (None, None),
-                            y_lim= (None, None),
-                            colour= 'green',
-                            save= True)
+    if Detrending_method == 'Exp_fit':
+        # compute dF/F and plot
+        signal_dF_F = 100*signal_corrected/signal_expfit
+        PlotFunctions.plot_sigle_line(x= time_sec,
+                                y= signal_dF_F,
+                                Fig_size= (10,6),
+                                Fig_title= f'{Namefor465}_dFF',
+                                x_label= 'Time (sec)',
+                                y_label= f'{Namefor465} dF/F (%)',
+                                x_lim= (None, None),
+                                y_lim= (None, None),
+                                colour= 'green',
+                                save= True)
+        
+        # compute z-score and plot
+        signal_zscored = (signal_corrected-np.mean(signal_corrected))/np.std(signal_corrected)
+        PlotFunctions.plot_sigle_line(x= time_sec,
+                                y= signal_zscored,
+                                Fig_size= (10,6),
+                                Fig_title= f'{Namefor465}_z-score',
+                                x_label= 'Time (sec)',
+                                y_label= f'{Namefor465} z-score',
+                                x_lim= (None, None),
+                                y_lim= (None, None),
+                                colour= 'green',
+                                save= True)
+    elif Detrending_method == 'Highpass_filter':
+        # compute z-score and plot
+        signal_zscored = (signal_corrected-np.mean(signal_corrected))/np.std(signal_corrected)
+        PlotFunctions.plot_sigle_line(x= time_sec,
+                                y= signal_zscored,
+                                Fig_size= (10,6),
+                                Fig_title= f'{Namefor465}_z-score',
+                                x_label= 'Time (sec)',
+                                y_label= f'{Namefor465} z-score',
+                                x_lim= (None, None),
+                                y_lim= (None, None),
+                                colour= 'green',
+                                save= True)
 
     ####################################################################################################################
     # 7. Save the data
     ####################################################################################################################
-    GCaMP_signal = pd.DataFrame({'original_time': time_sec, 
-                                'time': time_sec - ToffsetForCam,  
-                                'value': signal_dF_F})
-    GCaMP_signal.to_pickle('Final_table_raw_trace.pkl')
-    GCaMP_signal.to_csv('Final_table_raw_trace.csv')
+    if Detrending_method == 'Exp_fit':
+        GCaMP_signal = pd.DataFrame({'original_time': time_sec, 
+                                    'time': time_sec - ToffsetForCam,  
+                                    'value': signal_dF_F,
+                                    'value2': signal_corrected,
+                                    'value3': signal_raw})
+        
+    elif Detrending_method == 'Highpass_filter':
+        GCaMP_signal = pd.DataFrame({'original_time': time_sec, 
+                                    'time': time_sec - ToffsetForCam,  
+                                    'value': signal_zscored,
+                                    'value2': signal_corrected,
+                                    'value3': signal_raw})
     
-    # print('The file:Final_table_raw_trace.pkl saved successfully')
-
+    if SaveAsCSV == False:
+        GCaMP_signal.to_pickle('Final_table_raw_trace.pkl')
+    elif SaveAsCSV == True:
+        GCaMP_signal.to_csv('Final_table_raw_trace.csv')
+    
     return 
 
 ########################################################################################################################
@@ -670,7 +719,7 @@ def Peak_Analysis(pkl_path:str = "Final_table_raw_trace.pkl",
             ax1.set_ylabel(r'$\Delta$F/F (%)', color='k', fontsize = 20)
 
             # ax1.set_title('Peak detection')
-            ax1.set_xlim(0, 600) # Set x-axis limit in seconds 
+            # ax1.set_xlim(0, 600) # Set x-axis limit in seconds 
 
             lines = plot1 + Peaks + Onsets
             labels = [l.get_label() for l in lines]  #get legend labels
@@ -1535,3 +1584,54 @@ def Epoch_Analysis_2EVT(pkl_path:str = "Final_table_raw_trace.pkl",
     plt.show()
 
     return
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+def Eport_Epoch_Info(TDT_Tank_path:str, REF_EPOC:str = 'PC1_', Time4Exclude:int = 2, destfolder:str = '', SaveData:bool = False):
+    '''
+    This function extracts the information about the epochs from the synapse Tank data and save it as a CSV file.
+    
+    Parameters:
+    TDT_Tank_path (str): Path to the folder containing Tank files generated by TDT syanpse.
+    REF_EPOC (str): The name of channel that contains the epochs information.
+    Time4Exclude (int): Time in seconds to exclude from the start of recored data used the signal preprocessing. 
+    SaveData (bool): Whether to save the extracted data as a CSV file.
+    
+    -------------------------------------------
+    Returns:
+    df_EPOC (pd.DataFrame): DataFrame containing the extracted epoch information. It has two columns with header: 'onset' and 'offset'. All data is in seconds. 
+
+    Example usage:
+    TDT_Tank_path = "path/to/tank/folder"
+    REF_EPOC = "PC1_"
+    Time4Exclude = 2
+    SaveData = True
+    df_EPOC = Eport_Epoch_Info(TDT_Tank_path, REF_EPOC, Time4Exclude, SaveData)
+    print(df_EPOC)
+    '''
+
+    import os
+    import numpy as np
+    import pandas as pd
+    import tdt
+
+    FPdata = tdt.read_block(TDT_Tank_path)
+    EPOC = FPdata.epocs[REF_EPOC]
+    df_EPOC = pd.DataFrame({'onset': EPOC.onset, 
+                            'offset': EPOC.offset})
+    df_EPOC = df_EPOC - Time4Exclude
+    
+    if SaveData:
+        if destfolder == '':
+            destfolder = TDT_Tank_path
+        else:
+            if not os.path.exists(destfolder):
+                os.makedirs(destfolder)
+        df_EPOC.to_csv(os.path.join(destfolder, 'Data_EPOC.csv'), index=False)
+    
+    print(df_EPOC.head())
+
+    return df_EPOC
+    
